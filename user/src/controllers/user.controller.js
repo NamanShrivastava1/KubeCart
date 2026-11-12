@@ -2,6 +2,7 @@ import { config } from "../config/config.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
+import redisClient from "../config/redis.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -79,26 +80,35 @@ const getUserProfile = async (req, res) => {
 
 const logoutUser = async (req, res) => {
   try {
-    const token = req.cookies.token;
+    const token = req.cookies?.token;
 
     if (!token) {
-      return res
-        .status(400)
-        .json({ message: "No token found. User Alreay logged out" });
+      return res.status(400).json({
+        message: "No token found",
+      });
     }
 
-    await blacklistTokenModel.create({ token });
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    const remainingTime = decoded.exp - Math.floor(Date.now() / 1000);
+
+    if (remainingTime > 0) {
+      await redisClient.set(`blacklist:${token}`, "revoked", {
+        EX: remainingTime,
+      });
+    }
 
     res.clearCookie("token");
-    res.status(200).json({ message: "Logout successful" });
+
+    return res.status(200).json({
+      message: "Logout successful",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Logout error:", error.message);
+
+    return res.status(500).json({
+      message: "Unable to complete logout",
+    });
   }
 };
 
-export {
-    registerUser,
-    loginUser,
-    getUserProfile,
-    logoutUser
-}
+export { registerUser, loginUser, getUserProfile, logoutUser };
