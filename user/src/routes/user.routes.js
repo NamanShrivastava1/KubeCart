@@ -10,7 +10,7 @@ const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/profile", authMiddleware.userAuth, getUserProfile);
-router.get("/logout", authMiddleware.userAuth, logoutUser);
+router.get("/profile", authMiddleware.authenticateUser, getUserProfile);
+router.get("/logout", authMiddleware.authenticateUser, logoutUser);
 
 export default router;

@@ -8,7 +8,7 @@ import { HttpStatusCode } from "../constants/HttpStatusCode.js";
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     const user = await userModel.findOne({ email: email });
 
     if (user) {
@@ -23,11 +23,19 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role,
     });
 
-    const token = jwt.sign({ id: newUser._id }, config.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      {
+        id: newUser._id,
+        role: newUser.role,
+      },
+      config.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    );
 
     res.cookie("token", token);
 
@@ -61,7 +69,7 @@ const loginUser = async (req, res) => {
         .json({ message: "Invalid Email or Password" });
     }
 
-    const token = jwt.sign({ id: user._id }, config.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, {
       expiresIn: "1h",
     });
 
@@ -83,9 +91,11 @@ const getUserProfile = async (req, res) => {
   try {
     const user = req.user;
 
+    const fetchedUser = await userModel.findById(user.id);
+
     res.status(HttpStatusCode.SUCCESS).json({
       message: "User profile fetched successfully",
-      user,
+      user: fetchedUser,
     });
   } catch (error) {
     res

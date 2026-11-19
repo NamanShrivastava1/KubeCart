@@ -1,22 +1,22 @@
-import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import redisClient from "../config/redis.js";
+import { config } from "../config/config.js";
 
-export const userAuth = async (req, res, next) => {
+export const authenticateUser = async (req, res, next) => {
   try {
-    const authHeader = req.header("Authorization");
-
     const token =
       req.cookies?.token ||
-      (authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null);
+      (req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.split(" ")[1]
+        : null);
 
     if (!token) {
       return res.status(401).json({
-        message: "Access Denied.",
+        message: "Unauthorized",
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.JWT_SECRET);
 
     const isBlacklisted = await redisClient.exists(`blacklist:${token}`);
 
@@ -26,15 +26,10 @@ export const userAuth = async (req, res, next) => {
       });
     }
 
-    const user = await userModel.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
-
-    req.user = user;
+    req.user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
 
     next();
   } catch (error) {
@@ -54,4 +49,16 @@ export const userAuth = async (req, res, next) => {
       message: "Authentication service temporarily unavailable",
     });
   }
+};
+
+export const authenticateSeller = async (req, res, next) => {
+  await authenticateUser(req, res, () => {
+    if (req.user.role !== "seller") {
+      return res.status(403).json({
+        message: "Forbidden: Sellers only",
+      });
+    }
+
+    next();
+  });
 };
