@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
+  role: {
+    type: String,
+    enum: ["buyer", "seller"],
+    default: "buyer",
+  },
 });
 
 export default mongoose.model("user", userSchema);
