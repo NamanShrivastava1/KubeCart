@@ -17,12 +17,12 @@ router.post("/create", authenticateSeller, createProduct);
 
 router.get("/my-products", authenticateSeller, getMyProducts);
 
-router.put("/update/:id", authenticateSeller, updateProduct);
+router.patch("/update/:id", authenticateSeller, updateProduct);
 
 router.delete("/delete/:id", authenticateSeller, deleteProduct);
 
 // Public routes
-router.get("/", getAllProducts);
+router.get("/get-all", getAllProducts);
 router.get("/:id", getProductById);
 
 export default router;

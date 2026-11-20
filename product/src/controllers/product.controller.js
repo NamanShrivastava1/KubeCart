@@ -183,8 +183,7 @@ const updateProduct = async (req, res) => {
         $set: updates,
       },
       {
-        new: true,
-        runValidators: true,
+        returnDocument: "after",
       },
     );
 
