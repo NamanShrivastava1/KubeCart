@@ -89,7 +89,7 @@ const getProductById = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Invalid product ID",
       });
     }
@@ -101,7 +101,7 @@ const getProductById = async (req, res) => {
     });
 
     if (!product) {
-      return res.status(404).json({
+      return res.status(HttpStatusCode.NOT_FOUND).json({
         message: "Product not found",
       });
     }
@@ -145,7 +145,7 @@ const updateProduct = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Invalid product ID",
       });
     }
@@ -169,7 +169,7 @@ const updateProduct = async (req, res) => {
     }
 
     if (Object.keys(updates).length === 0) {
-      return res.status(400).json({
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "No valid fields provided for update",
       });
     }
@@ -188,7 +188,7 @@ const updateProduct = async (req, res) => {
     );
 
     if (!product) {
-      return res.status(404).json({
+      return res.status(HttpStatusCode.NOT_FOUND).json({
         message: "Product not found or you are not its owner",
       });
     }
@@ -201,7 +201,7 @@ const updateProduct = async (req, res) => {
     console.error("Update product error:", error.message);
 
     if (error.name === "ValidationError" || error.name === "CastError") {
-      return res.status(400).json({
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Invalid product data",
       });
     }
@@ -218,7 +218,7 @@ const deleteProduct = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Invalid product ID",
       });
     }
@@ -229,7 +229,7 @@ const deleteProduct = async (req, res) => {
     });
 
     if (!product) {
-      return res.status(404).json({
+      return res.status(HttpStatusCode.NOT_FOUND).json({
         message: "Product not found or you are not its owner",
       });
     }

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import redisClient from "../config/redis.js";
 import { config } from "../config/config.js";
+import { HttpStatusCode } from "../constants/HttpStatusCode.js";
 
 export const authenticateUser = async (req, res, next) => {
   try {
@@ -11,7 +12,7 @@ export const authenticateUser = async (req, res, next) => {
         : null);
 
     if (!token) {
-      return res.status(401).json({
+      return res.status(HttpStatusCode.UNAUTHORIZED).json({
         message: "Unauthorized",
       });
     }
@@ -21,7 +22,7 @@ export const authenticateUser = async (req, res, next) => {
     const isBlacklisted = await redisClient.exists(`blacklist:${token}`);
 
     if (isBlacklisted) {
-      return res.status(401).json({
+      return res.status(HttpStatusCode.UNAUTHORIZED).json({
         message: "Token has been revoked. Please log in again.",
       });
     }
@@ -38,14 +39,14 @@ export const authenticateUser = async (req, res, next) => {
       error.name === "TokenExpiredError" ||
       error.name === "NotBeforeError"
     ) {
-      return res.status(401).json({
+      return res.status(HttpStatusCode.UNAUTHORIZED).json({
         message: "Invalid or expired token",
       });
     }
 
     console.error("Authentication error:", error.message);
 
-    return res.status(503).json({
+    return res.status(HttpStatusCode.SERVICE_UNAVAILABLE).json({
       message: "Authentication service temporarily unavailable",
     });
   }
@@ -54,7 +55,7 @@ export const authenticateUser = async (req, res, next) => {
 export const authenticateSeller = async (req, res, next) => {
   await authenticateUser(req, res, () => {
     if (req.user.role !== "seller") {
-      return res.status(403).json({
+      return res.status(HttpStatusCode.FORBIDDEN).json({
         message: "Forbidden: Sellers only",
       });
     }
