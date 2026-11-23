@@ -7,6 +7,7 @@ const app = express();
 
 app.use("/user", expressProxy("http://localhost:3001"));
 app.use("/product", expressProxy("http://localhost:3002"));
+app.use("/notification", expressProxy("http://localhost:3003"));
 
 const startServer = async () => {
   try {

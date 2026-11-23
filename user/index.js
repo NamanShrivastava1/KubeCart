@@ -1,14 +1,15 @@
 import app from "./src/app.js";
 import connectToDb from "./src/config/db.js";
 import { config } from "./src/config/config.js";
-
+import { connectRabbitMQ } from "./src/config/mq.js";
 
 const startServer = async () => {
   try {
-    connectToDb();
+    await connectToDb();
+    await connectRabbitMQ();
 
     const server = app.listen(config.PORT, () => {
-      console.log("Server started", {
+      console.log("User Service Started", {
         port: config.PORT,
         env: config.NODE_ENV,
       });
@@ -19,6 +20,7 @@ const startServer = async () => {
         error: err.message,
         stack: err.stack,
       });
+
       server.close(() => process.exit(1));
     });
 
@@ -27,18 +29,23 @@ const startServer = async () => {
         error: err.message,
         stack: err.stack,
       });
+
       process.exit(1);
     });
 
     process.on("SIGTERM", () => {
       console.info("SIGTERM received — shutting down gracefully");
+
       server.close(() => {
         console.info("Server closed");
         process.exit(0);
       });
     });
   } catch (error) {
-    console.error("Error starting server", { error: error.message });
+    console.error("Error starting server", {
+      error: error.message,
+    });
+
     process.exit(1);
   }
 };

@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 import userModel from "../models/user.model.js";
 import redisClient from "../config/redis.js";
+import { publishEvent } from "../config/mq.js";
 import { HttpStatusCode } from "../constants/HttpStatusCode.js";
 
 const registerUser = async (req, res) => {
@@ -24,6 +25,16 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+    });
+
+    publishEvent("user.registered", {
+      eventId: crypto.randomUUID(),
+      eventType: "user.registered",
+      data: {
+        userId: newUser._id.toString(),
+        name: newUser.name,
+        email: newUser.email,
+      },
     });
 
     const token = jwt.sign(
@@ -69,9 +80,13 @@ const loginUser = async (req, res) => {
         .json({ message: "Invalid Email or Password" });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      config.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    );
 
     res.cookie("token", token);
 

@@ -9,7 +9,7 @@ const startServer = async () => {
     connectToDb();
 
     const server = app.listen(config.PORT, () => {
-      console.log("Server started", {
+      console.log("Product Service Started", {
         port: config.PORT,
         env: config.NODE_ENV,
       });
