@@ -6,6 +6,7 @@ import userModel from "../models/user.model.js";
 import redisClient from "../config/redis.js";
 import { publishEvent } from "../config/mq.js";
 import { HttpStatusCode } from "../constants/HttpStatusCode.js";
+import logger from "../utils/logger.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -144,7 +145,7 @@ const logoutUser = async (req, res) => {
       message: "Logout successful",
     });
   } catch (error) {
-    console.error("Logout error:", error.message);
+    logger.error({ err: error }, "Logout failed");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Unable to complete logout",

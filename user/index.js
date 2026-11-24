@@ -2,6 +2,7 @@ import app from "./src/app.js";
 import connectToDb from "./src/config/db.js";
 import { config } from "./src/config/config.js";
 import { connectRabbitMQ } from "./src/config/mq.js";
+import logger from "./src/utils/logger.js";
 
 const startServer = async () => {
   try {
@@ -9,42 +10,37 @@ const startServer = async () => {
     await connectRabbitMQ();
 
     const server = app.listen(config.PORT, () => {
-      console.log("User Service Started", {
-        port: config.PORT,
-        env: config.NODE_ENV,
-      });
+      logger.info(
+        {
+          port: config.PORT,
+          environment: config.NODE_ENV,
+        },
+        "User Service started",
+      );
     });
 
     process.on("unhandledRejection", (err) => {
-      console.error("UNHANDLED REJECTION — shutting down", {
-        error: err.message,
-        stack: err.stack,
-      });
+      logger.fatal({ err }, "Unhandled rejection; shutting down");
 
       server.close(() => process.exit(1));
     });
 
     process.on("uncaughtException", (err) => {
-      console.error("UNCAUGHT EXCEPTION — shutting down", {
-        error: err.message,
-        stack: err.stack,
-      });
+      logger.fatal({ err }, "Uncaught exception; shutting down");
 
       process.exit(1);
     });
 
     process.on("SIGTERM", () => {
-      console.info("SIGTERM received — shutting down gracefully");
+      logger.info("SIGTERM received; shutting down gracefully");
 
       server.close(() => {
-        console.info("Server closed");
+        logger.info("Server closed");
         process.exit(0);
       });
     });
   } catch (error) {
-    console.error("Error starting server", {
-      error: error.message,
-    });
+    logger.fatal({ err: error }, "Failed to start User Service");
 
     process.exit(1);
   }

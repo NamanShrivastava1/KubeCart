@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import productModel from "../models/product.model.js";
 import { HttpStatusCode } from "../constants/HttpStatusCode.js";
+import logger from "../utils/logger.js";
 
 // Create Product
 const createProduct = async (req, res) => {
@@ -22,7 +23,7 @@ const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error("Create product error:", error.message);
+    logger.error({ err: error }, "Failed to create product");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",
@@ -75,7 +76,7 @@ const getAllProducts = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get products error:", error.message);
+    logger.error({ err: error }, "Failed to fetch products");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",
@@ -111,7 +112,7 @@ const getProductById = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error("Get product error:", error.message);
+    logger.error({ err: error }, "Failed to fetch product");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",
@@ -131,7 +132,7 @@ const getMyProducts = async (req, res) => {
       products,
     });
   } catch (error) {
-    console.error("Get seller products error:", error.message);
+    logger.error({ err: error }, "Failed to fetch seller products");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",
@@ -198,7 +199,7 @@ const updateProduct = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error("Update product error:", error.message);
+    logger.error({ err: error }, "Failed to update product");
 
     if (error.name === "ValidationError" || error.name === "CastError") {
       return res.status(HttpStatusCode.BAD_REQUEST).json({
@@ -238,7 +239,7 @@ const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
-    console.error("Delete product error:", error.message);
+    logger.error({ err: error }, "Failed to delete product");
 
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: "Internal server error",

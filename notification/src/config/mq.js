@@ -1,5 +1,6 @@
 import amqp from "amqplib";
 import { config } from "./config.js";
+import logger from "../utils/logger.js";
 
 let connection;
 let channel;
@@ -27,7 +28,7 @@ export const connectRabbitMQ = async () => {
     "payment.successful",
   );
 
-  console.log("Notification Service connected to RabbitMQ");
+  logger.info("Connected to RabbitMQ");
 
   return channel;
 };

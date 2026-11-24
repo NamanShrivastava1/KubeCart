@@ -1,20 +1,17 @@
 import { createClient } from "redis";
 import { config } from "./config.js";
+import logger from "../utils/logger.js";
 
 const client = createClient({
   url: config.REDIS_URL,
 });
 
 client.on("connect", () => {
-  console.log("Redis connected");
+  logger.info("Connected to Redis");
 });
 
-// client.on("ready", () => {
-//   console.log("Redis is ready to accept commands");
-// });
-
 client.on("error", (error) => {
-  console.error("Redis connection error:", error);
+  logger.error({ err: error }, "Redis connection error");
 });
 
 await client.connect();

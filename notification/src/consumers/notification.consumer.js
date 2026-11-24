@@ -4,6 +4,7 @@ import {
   sendWelcomeEmail,
   sendPaymentEmail,
 } from "../services/email.service.js";
+import logger from "../utils/logger.js";
 
 export const startNotificationConsumer = async () => {
   const channel = getChannel();
@@ -31,14 +32,14 @@ export const startNotificationConsumer = async () => {
 
       channel.ack(message);
 
-      console.log(`Processed event: ${event.eventType}`);
+      logger.info({ eventType: event.eventType }, "Processed notification event");
     } catch (error) {
-      console.error("Notification failed:", error.message);
+      logger.error({ err: error }, "Notification processing failed");
 
       // Do not immediately retry a failed email.
-      channel.nack(msg, false, false);
+      channel.nack(message, false, false);
     }
   });
 
-  console.log("Notification consumer started");
+  logger.info("Notification consumer started");
 };

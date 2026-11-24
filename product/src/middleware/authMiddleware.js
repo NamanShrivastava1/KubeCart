@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import redisClient from "../config/redis.js";
 import { config } from "../config/config.js";
 import { HttpStatusCode } from "../constants/HttpStatusCode.js";
+import logger from "../utils/logger.js";
 
 export const authenticateUser = async (req, res, next) => {
   try {
@@ -44,7 +45,7 @@ export const authenticateUser = async (req, res, next) => {
       });
     }
 
-    console.error("Authentication error:", error.message);
+    logger.error({ err: error }, "Authentication service error");
 
     return res.status(HttpStatusCode.SERVICE_UNAVAILABLE).json({
       message: "Authentication service temporarily unavailable",

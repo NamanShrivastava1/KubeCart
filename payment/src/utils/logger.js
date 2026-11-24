@@ -1,51 +1,48 @@
+import "dotenv/config";
+
 import pino from "pino";
 import path from "node:path";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const serviceName = "payment-service";
-
-const isProduction = process.env.NODE_ENV === "production";
+const logLevel = process.env.LOG_LEVEL || "info";
+const logToFile =
+  process.env.LOG_TO_FILE === "true" || process.env.NODE_ENV !== "production";
 
 const targets = [
   {
     target: "pino/file",
-    level: "info",
+    level: logLevel,
     options: {
       destination: 1,
     },
   },
 ];
 
-if (!isProduction) {
-  const logDirectory = path.resolve("logs");
+if (logToFile) {
+  const logDirectory = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../../logs",
+  );
 
   fs.mkdirSync(logDirectory, {
     recursive: true,
   });
 
-  targets.push(
-    {
-      target: "pino/file",
-      level: "info",
-      options: {
-        destination: path.join(logDirectory, "combined.log"),
-        mkdir: true,
-      },
+  targets.push({
+    target: "pino/file",
+    level: logLevel,
+    options: {
+      destination: path.join(logDirectory, "combined.log"),
+      mkdir: true,
     },
-    {
-      target: "pino/file",
-      level: "error",
-      options: {
-        destination: path.join(logDirectory, "error.log"),
-        mkdir: true,
-      },
-    },
-  );
+  });
 }
 
 const logger = pino(
   {
-    level: process.env.LOG_LEVEL || "info",
+    level: logLevel,
 
     base: {
       service: serviceName,

@@ -9,7 +9,17 @@ const app = express();
 app.use(
   pinoHttp({
     logger,
-    genReqId: () => randomUUID(),
+    genReqId: (req) => {
+      const requestId = req.headers["x-request-id"];
+
+      const id = typeof requestId === "string" &&
+        /^[\w-]{1,128}$/.test(requestId)
+        ? requestId
+        : randomUUID();
+
+      req.headers["x-request-id"] = id;
+      return id;
+    },
 
     customLogLevel: (req, res, error) => {
       if (error || res.statusCode >= 500) {
@@ -21,7 +31,11 @@ app.use(
       return "info";
     },
 
-    redact: ["req.headers.authorization", "req.headers.cookie"],
+    redact: [
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "req.headers.x-api-key",
+    ],
   }),
 );
 
