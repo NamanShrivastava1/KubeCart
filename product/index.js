@@ -2,8 +2,6 @@ import app from "./src/app.js";
 import connectToDb from "./src/config/db.js";
 import { config } from "./src/config/config.js";
 
-const PORT = config.PORT;
-
 const startServer = async () => {
   try {
     connectToDb();
