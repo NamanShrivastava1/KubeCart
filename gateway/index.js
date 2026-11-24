@@ -7,6 +7,7 @@ import logger from "./src/utils/logger.js";
 app.use("/user", expressProxy("http://localhost:3001"));
 app.use("/product", expressProxy("http://localhost:3002"));
 app.use("/notification", expressProxy("http://localhost:3003"));
+app.use("/payment", expressProxy("http://localhost:3004"))
 
 const server = app.listen(config.PORT, () => {
   logger.info(
