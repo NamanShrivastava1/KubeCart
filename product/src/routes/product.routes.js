@@ -23,6 +23,7 @@ router.delete("/delete/:id", authenticateSeller, deleteProduct);
 
 // Public routes
 router.get("/get-all", getAllProducts);
+
 router.get("/:id", getProductById);
 
 export default router;
